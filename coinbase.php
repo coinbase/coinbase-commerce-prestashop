@@ -1,4 +1,7 @@
 <?php
+
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -55,6 +58,27 @@ class Coinbase extends PaymentModule {
 
         return true;
     }
+
+    /**
+     * Hook in to the list of payment options on checkout page.
+     * @return PaymentOption[]
+     */
+    public function hookPaymentOptions($params) {
+        if (!$this->active) {
+            return;
+        }
+
+        $paymentOption = new PaymentOption();
+        $paymentOption->setCallToActionText($this->l('Coinbase Commerce'))
+            ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
+            ->setAdditionalInformation($this->context->smarty->fetch('module:coinbase/views/templates/front/payment_infos.tpl'))
+            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.png'));
+        $paymentOptions = [$paymentOption];
+
+        return $paymentOptions;
+    }
+
+    public function hookPaymentReturn() {}
 
     /**
      * Module Configuration page controller. Handle the form POST request 
