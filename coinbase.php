@@ -14,7 +14,7 @@ class Coinbase extends PaymentModule {
         $this->version = '1.0.0';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Coinbase';
-        $this->controllers = array('validation');
+        $this->controllers = array('process');
         $this->is_eu_compatible = 1;
         $this->bootstrap = true;
 
@@ -70,7 +70,7 @@ class Coinbase extends PaymentModule {
 
         $paymentOption = new PaymentOption();
         $paymentOption->setCallToActionText($this->l('Coinbase Commerce'))
-            ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
+            ->setAction($this->context->link->getModuleLink($this->name, 'process', array(), true))
             ->setAdditionalInformation($this->context->smarty->fetch('module:coinbase/views/templates/front/payment_infos.tpl'))
             ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.png'));
         $paymentOptions = [$paymentOption];
