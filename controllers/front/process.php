@@ -4,8 +4,14 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
     const API_URL = "https://api.commerce.coinbase.com";
 
     public function postProcess() {
+        // Check that payment module is active, to prevent users from 
+        // calling this controller when payment method is inactive. 
+        if(!$this->isModuleActive()) {
+            die($this->module->l('This payment method is not available.', 'payment'));
+        }
+
         $order = $this->createOrder();
-        $response = $this->createChargePOST($order);
+        $response = $this->apiCreateCharge($order);
         $response = json_decode($response, true);
 
         // TODO: Improve error handling here...
@@ -20,6 +26,21 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
         }   
 
         header('Location: ' . $response['data']['hosted_url']);
+    }
+    
+    /**
+     * Check if the current module is an active payment module.
+     */
+    protected function isModuleActive() {
+        $authorized = false;
+        foreach (Module::getPaymentModules() as $module) {
+            if ($module['name'] == 'coinbase') {
+                $authorized = true;
+                break;
+            }
+        }
+
+        return $authorized;
     }
 
     protected function createOrder() {
@@ -47,7 +68,7 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
      * HTTP POST Call to API that create a charge.
      * @return string Body of HTTP Response
      */
-    protected function createChargePOST($order) {
+    protected function apiCreateCharge($order) {
         $apiKey = Configuration::get('COINBASE_API_KEY');
         $currency = new Currency($order->id_currency);
 
