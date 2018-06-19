@@ -10,8 +10,7 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
             die($this->module->l('This payment method is not available.', 'payment'));
         }
 
-        $order = $this->createOrder();
-        $response = $this->apiCreateCharge($order);
+        $response = $this->apiCreateCharge($this->context->cart);
         $response = json_decode($response, true);
 
         // TODO: Improve error handling here...
@@ -43,47 +42,26 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
         return $authorized;
     }
 
-    protected function createOrder() {
-        $cart = $this->context->cart;
-        $customer = new Customer($cart->id_customer);
-        $currency = $this->context->currency;
-        $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
-        
-        $this->module->validateOrder(
-            $cart->id, 
-            Configuration::get('PS_OS_BANKWIRE'), // id_order_state, the status of the order.
-            $total, // Amount to be paid(?)
-            $this->module->displayName, // Payment Method
-            null, // Message
-            [], // Extra vars
-            (int)$currency->id, // Currency ID
-            false, // Dont touch amount 
-            $customer->secure_key // If we should use a secure key or not
-        );
-
-        return new Order($this->module->currentOrder);
-    }
-
     /**
      * HTTP POST Call to API that create a charge.
      * @return string Body of HTTP Response
      */
-    protected function apiCreateCharge($order) {
+    protected function apiCreateCharge($cart) {
         $apiKey = Configuration::get('COINBASE_API_KEY');
-        $currency = new Currency($order->id_currency);
+        $currency = new Currency($cart->id_currency);
+        $shopName = Configuration::get('PS_SHOP_NAME');
 
         $ch = curl_init(self::API_URL . "/charges/");
         $data = json_encode([
-            'name' => Configuration::get('PS_SHOP_NAME'), 
-            'description' => "Payment for order #{$order->id}", 
+            'name' => $shopName, 
+            'description' => "Payment for order from {$shopName}", 
             'pricing_type' => "fixed_price", 
             'local_price' => [
-                'amount' => $order->total_paid_tax_incl, 
+                'amount' => $cart->getOrderTotal(true, Cart::BOTH), 
                 'currency' => $currency->iso_code
             ], 
             'metadata' => [
-                'customer_id' => (int)$order->id_customer,
-                'order_id' => (int)$order->id,
+                'cart_id' => (int)$cart->id,
             ]
         ]);
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
