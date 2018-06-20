@@ -50,6 +50,12 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
         $apiKey = Configuration::get('COINBASE_API_KEY');
         $currency = new Currency($cart->id_currency);
         $shopName = Configuration::get('PS_SHOP_NAME');
+        $redirectUrl = $this->context->shop->getBaseURL(true) . 'index.php?' . http_build_query([
+            'controller' => 'order-confirmation', 
+            'id_cart' => $cart->id, 
+            'id_module' => $this->module->id, 
+            'key' => $this->context->customer->secure_key
+        ]);
 
         $ch = curl_init(self::API_URL . "/charges/");
         $data = json_encode([
@@ -62,7 +68,8 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
             ], 
             'metadata' => [
                 'cart_id' => (int)$cart->id,
-            ]
+            ], 
+            'redirect_url' => $redirectUrl
         ]);
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
         curl_setopt( $ch, CURLOPT_HTTPHEADER, [
