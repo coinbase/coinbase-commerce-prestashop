@@ -1,0 +1,10 @@
+{
+    "name": "coinbase/coinbase-prestashop",
+    "description": "Prestashop payment module to handle transaction with Coinbase Commerce.",
+    "require-dev": {
+        "phpunit/phpunit": "^7.2"
+    }, 
+    "autoload": {
+        "classmap": ["coinbase/"]
+    }
+}
