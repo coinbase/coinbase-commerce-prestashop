@@ -8,6 +8,8 @@ if (!defined('_PS_VERSION_')) {
 
 class Coinbase extends PaymentModule {
 
+    private $configManager;
+
     public function __construct() {
         $this->name = 'coinbase';
         $this->tab = 'payments_gateways';
@@ -22,6 +24,10 @@ class Coinbase extends PaymentModule {
     
         $this->displayName = $this->l('Coinbase Commerce');
         $this->description = $this->l('Payment module to handle transactions using Coinbase Commerce.');
+
+        // Since Prestashop do not use Dependency Injection, make sure that we can change 
+        // which class that handle certain behavior, so we can easily mock it in tests.
+        $this->setConfigManager(new ConfigManager());
     }
 
     /**
@@ -35,8 +41,7 @@ class Coinbase extends PaymentModule {
             !parent::install() || 
             !$this->registerHook('paymentOptions') || 
             !$this->registerHook('paymentReturn') || 
-            !Configuration::updateValue('COINBASE_API_KEY', null) ||
-            !Configuration::updateValue('COINBASE_SANDBOX', null)
+            !$this->configManager->addFields()
         ) {
             return false;
         }
@@ -50,8 +55,7 @@ class Coinbase extends PaymentModule {
     public function uninstall() {
         if (
             !parent::uninstall() || 
-            !Configuration::deleteByName('COINBASE_API_KEY') || 
-            !Configuration::deleteByName('COINBASE_SANDBOX')
+            !$this->configManager->deleteFields()
         ) {
             return false;
         }
@@ -148,5 +152,9 @@ class Coinbase extends PaymentModule {
         $helper->fields_value['COINBASE_SANDBOX'] = Configuration::get('COINBASE_SANDBOX');
     
         return $helper->generateForm($fields_form);
+    }
+
+    public function setConfigManager($manager) {
+        $this->configManager = $manager;
     }
 }

@@ -30,4 +30,15 @@ class UnitTestHelper extends TestCase {
             ->getMock();
         return $payment_module;
     }
+
+    public function getMockedConfigManager() {
+        $configManager = $this->getMockBuilder(get_class(new stdClass()))
+            ->setMockClassName('ConfigManager')
+            ->setMethods(array(
+                'addFields', 
+                'deleteFields'
+            ))
+            ->getMock();
+        return $configManager;
+    }
 }
