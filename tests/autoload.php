@@ -13,7 +13,7 @@ class UnitTestHelper extends TestCase {
      * Mock the PaymentModule from Prestashop core.
      */
     public function getMockedPaymentModule() {
-        $payment_module = $this->getMockBuilder(get_class(new stdClass()))
+        $paymentModule = $this->getMockBuilder(get_class(new stdClass()))
             ->setMockClassName('PaymentModule')
             ->setMethods(
                 array(
@@ -28,12 +28,11 @@ class UnitTestHelper extends TestCase {
                 )
             )
             ->getMock();
-        return $payment_module;
+        return $paymentModule;
     }
 
     public function getMockedConfigManager() {
-        $configManager = $this->getMockBuilder(get_class(new stdClass()))
-            ->setMockClassName('ConfigManager')
+        $configManager = $this->getMockBuilder(get_class(new ConfigManager()))
             ->setMethods(array(
                 'addFields', 
                 'deleteFields'
