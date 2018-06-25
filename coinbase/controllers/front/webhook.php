@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('_PS_VERSION_')) {
+    exit();
+}
+
 class CoinbaseWebhookModuleFrontController extends ModuleFrontController {
 
     public function postProcess() {
