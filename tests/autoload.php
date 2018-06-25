@@ -1,4 +1,8 @@
 <?php
+ini_set('error_reporting', E_ERROR | E_PARSE); // or error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -29,6 +33,13 @@ class UnitTestHelper extends TestCase {
             )
             ->getMock();
         return $paymentModule;
+    }
+
+    public function getMockedModuleFrontController() {
+        $frontController = $this->getMockBuilder(get_class(new stdClass()))
+            ->setMockClassName('ModuleFrontController')
+            ->getMock();
+        return $frontController;
     }
 
     public function getMockedConfigManager() {

@@ -1,7 +1,10 @@
 <?php
+
+if (!defined('_PS_VERSION_')) {
+    exit();
+}
+
 class CoinbaseProcessModuleFrontController extends ModuleFrontController {
-    
-    const API_URL = "https://api.commerce.coinbase.com";
 
     public function postProcess() {
         // Check that payment module is active, to prevent users from 
@@ -30,7 +33,7 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
     /**
      * Check if the current module is an active payment module.
      */
-    protected function isModuleActive() {
+    public function isModuleActive() {
         $authorized = false;
         foreach (Module::getPaymentModules() as $module) {
             if ($module['name'] == 'coinbase') {
@@ -46,41 +49,24 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController {
      * HTTP POST Call to API that create a charge.
      * @return string Body of HTTP Response
      */
-    protected function apiCreateCharge($cart) {
-        $apiKey = Configuration::get('COINBASE_API_KEY');
-        $currency = new Currency($cart->id_currency);
+    public function apiCreateCharge($cart) {
         $shopName = Configuration::get('PS_SHOP_NAME');
-        $redirectUrl = $this->context->shop->getBaseURL(true) . 'index.php?' . http_build_query([
-            'controller' => 'order-confirmation', 
-            'id_cart' => $cart->id, 
-            'id_module' => $this->module->id, 
-            'key' => $this->context->customer->secure_key
-        ]);
 
-        $ch = curl_init(self::API_URL . "/charges/");
         $data = json_encode([
             'name' => $shopName, 
             'description' => "Payment for order from {$shopName}", 
             'pricing_type' => "fixed_price", 
             'local_price' => [
-                'amount' => $cart->getOrderTotal(true, Cart::BOTH), 
-                'currency' => $currency->iso_code
+                'amount' => OrderManager::getCartTotal($cart), 
+                'currency' => OrderManager::getCurrencyIsoById($cart->id_currency)
             ], 
             'metadata' => [
                 'cart_id' => (int)$cart->id,
             ], 
-            'redirect_url' => $redirectUrl
+            'redirect_url' => OrderManager::getOrderConfirmationUrl($this->context, $cart->id, $this->module->id)
         ]);
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/json", 
-            "X-CC-Api-Key: {$apiKey}", 
-            "X-CC-Version: 2018-03-22"
-        ]);
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        $results = curl_exec($ch);
-        curl_close($ch);
 
+        $results = ApiManager::create()->post('/charges/', $data);
         return $results;
     }
 
