@@ -1,16 +1,6 @@
 <?php
 use \Mockery;
 
-class MockCart {
-    public $id_currency;
-    public $id;
-
-    public function __construct() {
-        $this->id = 1;
-        $this->id_currency = 1;
-    }
-}
-
 class ProcessTest extends Mockery\Adapter\Phpunit\MockeryTestCase {
     
     public function setup() {
