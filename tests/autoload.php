@@ -1,5 +1,5 @@
 <?php
-ini_set('error_reporting', E_ERROR | E_PARSE); // or error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL); // or error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
@@ -38,6 +38,16 @@ class UnitTestHelper extends TestCase {
     public function getMockedModuleFrontController() {
         $frontController = $this->getMockBuilder(get_class(new stdClass()))
             ->setMockClassName('ModuleFrontController')
+            ->setMethods(
+                array(
+                    '__construct',
+                    'addOmiseTransaction',
+                    'l',
+                    'postProcess',
+                    'setRedirectAfter',
+                    'validateCart',
+                )
+            )
             ->getMock();
         return $frontController;
     }
@@ -50,5 +60,14 @@ class UnitTestHelper extends TestCase {
             ))
             ->getMock();
         return $configManager;
+    }
+
+    public static function callProtected($object, $method, $args) {
+        $class = new ReflectionClass($object);
+        $method = $class->getMethod($method);
+        $method->setAccessible(true);
+
+        $results = $method->invokeArgs($object, $args);
+        return $results;
     }
 }

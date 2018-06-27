@@ -25,6 +25,14 @@ class OrderManager {
         ]);
     }
 
+    public static function getCartById($cartId) {
+        return new Cart($cartId);
+    }
+
+    public static function getCustomerById($customerId) {
+        return new Customer($customerId);
+    }
+
     public static function getCartTotal($cart) {
         return $cart->getOrderTotal(true, Cart::BOTH);
     }
