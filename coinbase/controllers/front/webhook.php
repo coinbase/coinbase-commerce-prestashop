@@ -4,6 +4,10 @@ if (!defined('_PS_VERSION_')) {
     exit();
 }
 
+if (defined('_PS_MODULE_DIR_')) {
+    require_once _PS_MODULE_DIR_ . 'coinbase/classes/OrderManager.php';
+}
+
 class CoinbaseWebhookModuleFrontController extends ModuleFrontController {
 
     public function postProcess() {
