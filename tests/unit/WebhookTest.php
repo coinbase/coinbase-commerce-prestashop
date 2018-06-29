@@ -16,7 +16,7 @@ class WebhookTest extends Mockery\Adapter\Phpunit\MockeryTestCase {
      */
     public function testCreateOrder() {
         Mockery::mock('alias:\Configuration')
-            ->shouldReceive('get')->with('PS_OS_PAYMENT')->andReturn(1)->once();
+            ->shouldReceive('get')->with('PS_OS_PAYMENT')->andReturn(1);
 
         $currency = Mockery::mock('Currency');
         $currency->id = 1;
@@ -32,8 +32,11 @@ class WebhookTest extends Mockery\Adapter\Phpunit\MockeryTestCase {
             ->shouldReceive('getCartById')->with(1)->andReturn($cartMock)
             ->shouldReceive('getCustomerById')->with(1)->andReturn($customerMock);
         
+        $paymentCollectionMock = Mockery::mock('PaymentCollection');
+        $paymentCollectionMock->shouldReceive('count')->andReturn(0)->once();
+
         Mockery::mock('overload:\Order')
-            ->shouldReceive('getOrderPaymentCollection')->andReturn([]);
+            ->shouldReceive('getOrderPaymentCollection')->andReturn($paymentCollectionMock);
     
         $mockModule = Mockery::mock();
         $mockModule->displayName = 'Coinbase';

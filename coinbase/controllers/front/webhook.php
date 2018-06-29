@@ -20,29 +20,74 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController {
         }
 
         if($payload['event']['type'] == 'charge:confirmed') {
-            $cartId = $payload['event']['data']['metadata']['cart_id'];
-            $payments = $payload['event']['data']['payments'];
-            if (!empty($payments)) {
-                // Get the last payment in list of payments. 
-                // That's the only one we care about adding.
-                $lastPayment = $payments[count($payments)-1];
-
-                $amount = $lastPayment['value']['local']['amount'];
-                $transactionId = $lastPayment['transaction_id'];
-                
-                // Get the currency object by the ISO code provided in the data.
-                // If the currency does not exist with that ISO code, throw error.
-                $currencyId = Currency::getIdByIsoCode($lastPayment['value']['local']['currency']);
-                if(!isset($currencyId)) {
-                    throw new \Exception("The currency ISO code provided in the request does not exist in the shop.");
-                }
-                $currency = new Currency($currencyId);
-
-                $this->createOrder($cartId, $amount, $currency, $transactionId);
-            }
+            $this->handleChargeConfirmed($payload);
+        }
+        elseif($payload['event']['type'] == 'charge:failed') {
+            $this->handleChargeFailed($payload);
         }
 
         die("OK");
+    }
+
+    /**
+     * Handler for when event is sent with type charge:confirmed.
+     * It takes the payload data and creates an order.
+     */
+    protected function handleChargeConfirmed($payload) {
+        $cartId = $payload['event']['data']['metadata']['cart_id'];
+        $payments = $payload['event']['data']['payments'];
+        if (!empty($payments)) {
+            // Get the last payment in list of payments. 
+            // That's the only one we care about adding.
+            $lastPayment = $payments[count($payments)-1];
+
+            $amount = $lastPayment['value']['local']['amount'];
+            $transactionId = $lastPayment['transaction_id'];
+            
+            // Get the currency object by the ISO code provided in the data.
+            // If the currency does not exist with that ISO code, throw error.
+            $currencyId = Currency::getIdByIsoCode($lastPayment['value']['local']['currency']);
+            if(!isset($currencyId)) {
+                throw new \Exception("The currency ISO code provided in the request does not exist in the shop.");
+            }
+            $currency = new Currency($currencyId);
+            $this->createOrder($cartId, $amount, $currency, $transactionId, Configuration::get('PS_OS_PAYMENT'));
+        }
+    }
+    
+    /**
+     * Handler for when event is sent with type charge:failed
+     * If payment was made, and failed, it creates an order with 
+     * ERROR status.
+     */
+    protected function handleChargeFailed($payload) {
+        $cartId = $payload['event']['data']['metadata']['cart_id'];
+        $payments = $payload['event']['data']['payments'];
+
+        // If no payments is made, it means that the charge expired.
+        // in this case we can ignore handling it. 
+        // Else it means that a payment was made, but it still failed due 
+        // to for example invalid amount.
+        if(empty($payments)) {
+            return;
+        }
+
+        // Get the last payment in list of payments. 
+        // That's the only one we care about adding.
+        $lastPayment = $payments[count($payments)-1];
+
+        $amount = $lastPayment['value']['local']['amount'];
+        $transactionId = $lastPayment['transaction_id'];
+        
+        // Get the currency object by the ISO code provided in the data.
+        // If the currency does not exist with that ISO code, throw error.
+        $currencyId = Currency::getIdByIsoCode($lastPayment['value']['local']['currency']);
+        if(!isset($currencyId)) {
+            throw new \Exception("The currency ISO code provided in the request does not exist in the shop.");
+        }
+        $currency = new Currency($currencyId);
+
+        $this->createOrder($cartId, $amount, $currency, $transactionId);
     }
 
     /**
@@ -52,15 +97,17 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController {
      * @param float $amount The amount paid.
      * @param Currency $currency The currency that was used in the payment.
      * @param string $transactionId The ID of the transaction from the payment.
+     * @param int $statusId The status that the order should be set to.
      * @return Order The created order.
      */
-    protected function createOrder($cartId, $amount, $currency, $transactionId) {
+    protected function createOrder($cartId, $amount, $currency, $transactionId, $statusId=null) {
         $cart = OrderManager::getCartById($cartId);
         $customer = OrderManager::getCustomerById($cart->id_customer);
+        $statusId = $statusId ?? Configuration::get('PS_OS_PAYMENT');
         
         $this->module->validateOrder(
             $cart->id,
-            Configuration::get('PS_OS_PAYMENT'),
+            $statusId,
             $amount,
             $this->module->displayName,
             null, // Message
@@ -75,7 +122,7 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController {
         // Update the Transaction ID of the payment that was created 
         // when we validated the order. 
         $payments = $order->getOrderPaymentCollection();
-        if(!empty($payments)) {
+        if($payments->count() > 0) {
             $payments[0]->transaction_id = $transactionId;
             $payments[0]->update();
         }
