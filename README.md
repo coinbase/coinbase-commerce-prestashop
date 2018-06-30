@@ -14,7 +14,7 @@
 
 **NOTE:** There is a setting for "Unsafe" mode on the plugins settings page. This should never be set to "Enabled" on a production website. 
 It is only used for making testing easier during development, since it will deactivate any validation of the requests that is send to the webhook, which 
-will allow the developer to emulate POST requests to the webhook without generating the `X-CC-Webhook-Signature` header.
+will allow the developer to emulate POST requests to the webhook without generating the `X-CC-Webhook-Signature` header.
 
 # Run Tests
 
