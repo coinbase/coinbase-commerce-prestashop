@@ -16,6 +16,10 @@
 It is only used for making testing easier during development, since it will deactivate any validation of the requests that is send to the webhook, which 
 will allow the developer to emulate POST requests to the webhook without generating the `X-CC-Webhook-Signature` header.
 
+# Localization
+All text strings, labels and descriptions found in the plugin is translatable. You can translate the plugin from the 
+International/Translations tab in the Prestashop Back Office.
+
 # Run Tests
 
 This Prestashop plugin is using the composer dependencies Mockery and PHPUnit to do unit testing. Because of the limitations of Mockery all unit tests need to be run as isolated processes. 
