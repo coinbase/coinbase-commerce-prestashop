@@ -1,1 +1,1 @@
-Payment Infos Template.
+<p>{l s='Coinbase Commerce allow you to pay for the order in crypto currencies such as Bitcoin, Etherium, Litecoin and more.' mod='coinbase'}</p>

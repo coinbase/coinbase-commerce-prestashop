@@ -112,7 +112,9 @@ class Coinbase extends PaymentModule {
         $fields_form[0]['form'] = [
             'legend' => [
                 'title' => $this->l('Settings'),
-            ],
+            ], 
+            'description' => $this->l('To use this plugin, you must first sign up for an account and create an API Key at ')
+             . '<a href="https://commerce.coinbase.com/" target="_blank" title="Coinbase Commerce">Coinbase Commerce</a>.', 
             'input' => [
                 [
                     'type' => 'text',
@@ -123,8 +125,8 @@ class Coinbase extends PaymentModule {
                 ],
                 [
                     'type' => 'radio', 
-                    'label' => $this->l('Activate Sandbox Mode'), 
-                    'desc' => $this->l('Sandbox mode allows you to test the module without doing real payments.'),
+                    'label' => $this->l('Activate Unsafe Mode'), 
+                    'desc' => $this->l('Do not validate POST requests to webhooks, this is useful for development and testing (DO NOT USE IN PRODUCTION!)'),
                     'name' => 'COINBASE_SANDBOX', 
                     'required' => false, 
                     'is_bool' => true, 
