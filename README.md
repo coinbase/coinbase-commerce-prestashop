@@ -8,13 +8,13 @@
 3. Add an Webhook Endpoint which points to [https://<YOUR_WEBSITE>/module/coinbase/webhook]()
 
 ## Setup the Plugin
-4. Copy the `coinbase/` folder to your Prestashop `modules/` folder.
+4. Copy the `coinbase/` folder to your Prestashop `modules/` folder.
 5. Login to your Prestashop Back Office, navigate to the Modules tab, go to the "Installed Modules" tab and search for "Coinbase Commerce". Click Install to activate the plugin.
 6. Click Configure to go to the settings page of the plugin. Set the API Key to the key that you created in step 2.
 
 **NOTE:** There is a setting for "Unsafe" mode on the plugins settings page. This should never be set to "Enabled" on a production website. 
 It is only used for making testing easier during development, since it will deactivate any validation of the requests that is send to the webhook, which 
-will allow the developer to emulate POST requests to the webhook without generating the `X-CC-Webhook-Signature` header.
+will allow the developer to emulate POST requests to the webhook without generating the `X-CC-Webhook-Signature` header.
 
 # Run Tests
 
