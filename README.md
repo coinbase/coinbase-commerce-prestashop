@@ -5,7 +5,7 @@
 ## Setup your Coinbase Account
 1. Signup for an account at [Coinbase Commerce](https://commerce.coinbase.com/).
 2. Create an API Key by going to the Settings tab in the Coinbase Commerce dashboard.
-3. Add an Webhook Endpoint which points to https://<YOUR SITE>/module/coinbase/webhook
+3. Add an Webhook Endpoint which points to [https://<YOUR_WEBSITE>/module/coinbase/webhook]()
 
 ## Setup the Plugin
 4. Copy the `coinbase/` folder to your Prestashop `modules/` folder.
