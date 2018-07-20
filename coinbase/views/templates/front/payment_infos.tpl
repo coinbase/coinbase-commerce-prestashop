@@ -1,1 +1,1 @@
-<p>{l s='Coinbase Commerce allow you to pay for the order in crypto currencies such as Bitcoin, Etherium, Litecoin and more.' mod='coinbase'}</p>
+<p>{l s='Coinbase Commerce allows you to pay for the order using cryptocurrencies such as Bitcoin, Bitcoin Cash, Ethereum, and Litecoin.' mod='coinbase'}</p>
