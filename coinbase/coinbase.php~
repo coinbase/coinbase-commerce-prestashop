@@ -10,24 +10,22 @@ if (defined('_PS_MODULE_DIR_')) {
     require_once _PS_MODULE_DIR_ . 'coinbase/classes/ConfigManager.php';
 }
 
-class Coinbase extends PaymentModule
-{
+class Coinbase extends PaymentModule {
 
     private $configManager;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->name = 'coinbase';
         $this->tab = 'payments_gateways';
         $this->version = '1.0.0';
         $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
         $this->author = 'Coinbase';
-        $this->controllers = array('process', 'cancel', 'webhook');
+        $this->controllers = array('process');
         $this->is_eu_compatible = 1;
         $this->bootstrap = true;
 
         parent::__construct();
-
+    
         $this->displayName = $this->l('Coinbase Commerce');
         $this->description = $this->l('Payment module to handle transactions using Coinbase Commerce.');
 
@@ -37,18 +35,16 @@ class Coinbase extends PaymentModule
     }
 
     /**
-     * Executes when installing module. Validates that required hooks exists
+     * Executes when installing module. Validates that required hooks exists 
      * and initiate default values in the database.
      */
-    public function install()
-    {
+    public function install() {
         // If anything fails during installation, return false which will 
         // raise an error to the user.
         if (
-            !parent::install() ||
-            !$this->registerHook('payment') ||
-            !$this->registerHook('paymentOptions') ||
-            !$this->registerHook('paymentReturn') ||
+            !parent::install() || 
+            !$this->registerHook('paymentOptions') || 
+            !$this->registerHook('paymentReturn') || 
             !$this->configManager->addFields()
         ) {
             return false;
@@ -57,12 +53,12 @@ class Coinbase extends PaymentModule
     }
 
     /**
-     * Executes when uninstalling the module. Cleanup DB fields
+     * Executes when uninstalling the module. Cleanup DB fields 
      * and raise error if something goes wrong.
      */
-    public function uninstall()
-    {
-        if (!parent::uninstall() ||
+    public function uninstall() {
+        if (
+            !parent::uninstall() || 
             !$this->configManager->deleteFields()
         ) {
             return false;
@@ -75,8 +71,7 @@ class Coinbase extends PaymentModule
      * Hook in to the list of payment options on checkout page.
      * @return PaymentOption[]
      */
-    public function hookPaymentOptions($params)
-    {
+    public function hookPaymentOptions($params) {
         if (!$this->active) {
             return;
         }
@@ -85,91 +80,78 @@ class Coinbase extends PaymentModule
         $paymentOption->setCallToActionText($this->l('Coinbase Commerce'))
             ->setAction($this->context->link->getModuleLink($this->name, 'process', array(), true))
             ->setAdditionalInformation($this->context->smarty->fetch('module:coinbase/views/templates/front/payment_infos.tpl'))
-            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/payment.png'));
+            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/payment.png'));
         $paymentOptions = [$paymentOption];
 
         return $paymentOptions;
     }
 
-    public function hookPaymentReturn()
-    {
-    }
+    public function hookPaymentReturn() {}
 
     /**
-     * Module Configuration page controller. Handle the form POST request
-     * and outputs the form.
+     * Module Configuration page controller. Handle the form POST request 
+     * and outputs the form. 
      */
-    public function getContent()
-    {
+    public function getContent() {
         $output = null;
-
-        if (Tools::isSubmit('update_settings_' . $this->name)) {
+ 
+        if (Tools::isSubmit('update_settings_' . $this->name))
+        {
             Configuration::updateValue('COINBASE_API_KEY', Tools::getValue('COINBASE_API_KEY'));
             Configuration::updateValue('COINBASE_SANDBOX', Tools::getValue('COINBASE_SANDBOX'));
             Configuration::updateValue('COINBASE_SHARED_SECRET', Tools::getValue('COINBASE_SHARED_SECRET'));
             $output .= $this->displayConfirmation($this->l('Settings updated'));
         }
 
-        return $output . $this->displayForm();
+        return $output.$this->displayForm();
     }
 
-    /**
+    /** 
      * Generates a HTML Form that is used on the module configuration page.
      */
-    public function displayForm()
-    {
-
+    public function displayForm() {
         $fields_form[0]['form'] = [
             'legend' => [
                 'title' => $this->l('Settings'),
-            ],
+            ], 
             'description' => $this->l('To use this plugin, you must first sign up for an account and create an API Key at ')
-                . '<a href="https://commerce.coinbase.com/" target="_blank" title="Coinbase Commerce">Coinbase Commerce</a>.',
+             . '<a href="https://commerce.coinbase.com/" target="_blank" title="Coinbase Commerce">Coinbase Commerce</a>.', 
             'input' => [
                 [
                     'type' => 'text',
                     'label' => $this->l('API Key'),
-                    'desc' => $this->l('You can manage your API keys within the Coinbase Commerce Settings page, available here: ') . '<a href="https://commerce.coinbase.com/dashboard/settings" target="_blank">https://commerce.coinbase.com/dashboard/settings</a>',
                     'name' => 'COINBASE_API_KEY',
                     'size' => 50,
                     'required' => false
                 ],
                 [
-                    'type' => 'text',
-                    'label' => $this->l('Shared Secret'),
-                    'desc' =>
-                        $this->l('Using webhooks allows Coinbase Commerce to send payment confirmation messages to the website. To fill this out:') . '</br>'
-                        . $this->l('1. In your Coinbase Commerce settings page, scroll to the \'Webhook subscriptions\' section') . '</br>'
-                        . $this->l('2. Click \'Add an endpoint\' and paste the following URL: ')
-                        . '<a>' . $this->context->link->getModuleLink($this->name, 'webhook', array(), true) . '</a></br>'
-                        . $this->l('3. Make sure to select "Send me all events", to receive all payment updates') . '</br>'
-                        . $this->l('4. Click "Show shared secret" and paste into the box above.')
-                    ,
-                    'name' => 'COINBASE_SHARED_SECRET',
-                    'size' => 50,
-                    'required' => false
+							'type' => 'text',
+							'label' => $this->l('Shared Secret'),
+							'name' => 'COINBASE_SHARED_SECRET',
+							'size' =>50,
+							'required' => false                
                 ],
                 [
-                    'type' => 'radio',
-                    'label' => $this->l('Activate Unsafe Mode'),
+                    'type' => 'radio', 
+                    'label' => $this->l('Activate Unsafe Mode'), 
                     'desc' => $this->l('Do not validate POST requests to webhooks, this is useful for development and testing (DO NOT USE IN PRODUCTION!)'),
-                    'name' => 'COINBASE_SANDBOX',
-                    'required' => false,
-                    'is_bool' => true,
+                    'name' => 'COINBASE_SANDBOX', 
+                    'required' => false, 
+                    'is_bool' => true, 
                     'values' => [
                         [
-                            'id' => 'enabled',
-                            'value' => 1,
+                            'id' => 'enabled', 
+                            'value' => 1, 
                             'label' => $this->l('Enable')
-                        ],
+                        ], 
                         [
-                            'id' => 'disabled',
-                            'value' => 0,
+                            'id' => 'disabled', 
+                            'value' => 0, 
                             'label' => $this->l('Disable')
                         ]
                     ]
                 ]
-            ],
+            ], 
             'submit' => [
                 'title' => $this->l('Save'),
                 'class' => 'btn btn-default pull-right'
@@ -178,17 +160,16 @@ class Coinbase extends PaymentModule
 
         $helper = new HelperForm();
         $helper->submit_action = 'update_settings_' . $this->name;
-
+    
         // Sets current value from DB to the form.
         $helper->fields_value['COINBASE_API_KEY'] = Configuration::get('COINBASE_API_KEY');
         $helper->fields_value['COINBASE_SANDBOX'] = Configuration::get('COINBASE_SANDBOX');
-        $helper->fields_value['COINBASE_SHARED_SECRET'] = Configuration::get('COINBASE_SHARED_SECRET');
-
+        $helper->fields_value['COINBASE_SHARED_SECRET'] = Configuration::get('COINBASE_SHARED_SECERET');
+    
         return $helper->generateForm($fields_form);
     }
 
-    public function setConfigManager($manager)
-    {
+    public function setConfigManager($manager) {
         $this->configManager = $manager;
     }
 }
