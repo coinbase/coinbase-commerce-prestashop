@@ -64,8 +64,8 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController
             case 'CANCELED':
                 return 'PS_OS_CANCELED';
             case 'UNRESOLVED':
-                // mark order as paid on overpaid or delayed
-                if ($timeline['context'] === 'OVERPAID' || $timeline['context'] === 'DELAYED') {
+                // mark order as paid on overpaid
+                if ($timeline['context'] === 'OVERPAID') {
                     return 'PS_OS_PAYMENT';
                 } else {
                     return 'PS_OS_ERROR';
