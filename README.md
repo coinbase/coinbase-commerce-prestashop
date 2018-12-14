@@ -15,3 +15,7 @@ will allow the developer to emulate POST requests to the webhook without generat
 # Localization
 All text strings, labels and descriptions found in the plugin is translatable. You can translate the plugin from the 
 International/Translations tab in the Prestashop Back Office.
+
+# Integrate with other e-commerce platforms
+
+[Coinbase Commerce Integrations](https://commerce.coinbase.com/integrate)
