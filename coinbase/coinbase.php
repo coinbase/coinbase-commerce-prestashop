@@ -1,7 +1,4 @@
 <?php
-
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -20,7 +17,7 @@ class Coinbase extends PaymentModule
         $this->name = 'coinbase';
         $this->tab = 'payments_gateways';
         $this->version = '1.0.0';
-        $this->ps_versions_compliancy = array('min' => '1.7', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Coinbase';
         $this->controllers = array('process', 'cancel', 'webhook');
         $this->is_eu_compatible = 1;
@@ -89,6 +86,32 @@ class Coinbase extends PaymentModule
         $paymentOptions = [$paymentOption];
 
         return $paymentOptions;
+    }
+
+    public function hookPayment($params)
+    {
+        if (!$this->active)
+            return;
+
+        $this->smarty->assign(array(
+            'this_path' => $this->_path,
+            'this_path_coinbase' => $this->_path,
+            'this_path_ssl' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->name.'/'
+        ));
+
+        return $this->display(__FILE__, 'payment.tpl');
+    }
+
+    public function hookDisplayPaymentEU($params)
+    {
+
+        $payment_options = array(
+            'cta_text' => $this->l('Coinbase Commerce'),
+            'logo' => Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/payment.png'),
+            'action' => $this->context->link->getModuleLink($this->name, 'process', array(), true)
+        );
+
+        return $payment_options;
     }
 
     public function hookPaymentReturn()

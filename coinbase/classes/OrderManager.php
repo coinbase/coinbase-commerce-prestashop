@@ -17,7 +17,7 @@ class OrderManager
 
     public static function getOrderConfirmationUrl($context, $cartId, $moduleId, $secureKey = null)
     {
-        $secureKey = is_null($secureKey) ? $context->customer->secure_key : $secureKey;
+        $secureKey = empty($secureKey) ? $context->customer->secure_key : $secureKey;
 
         return $context->shop->getBaseURL(true) . 'index.php?' . http_build_query([
                 'controller' => 'order-confirmation',
