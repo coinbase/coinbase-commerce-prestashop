@@ -4,8 +4,8 @@ if (!defined('_PS_VERSION_')) {
 }
 
 if (defined('_PS_MODULE_DIR_')) {
-    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/CoinbaseSDK/init.php';
-    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/CoinbaseSDK/const.php';
+    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/autoload.php';
+    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/const.php';
 }
 
 class CoinbaseWebhookModuleFrontController extends ModuleFrontController
@@ -13,9 +13,9 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         $event = $this->constructEvent();
-        \CoinbaseSDK\ApiClient::init(Configuration::get('COINBASE_API_KEY'));
+        \CoinbaseCommerce\ApiClient::init(Configuration::get('COINBASE_API_KEY'));
         $chargeId = $event->data->id;
-        $chargeObj = \CoinbaseSDK\Resources\Charge::retrieve($chargeId);
+        $chargeObj = \CoinbaseCommerce\Resources\Charge::retrieve($chargeId);
         if (empty($chargeObj->timeline)) {
             throw new Exception('Invalid charge');
         }
@@ -84,13 +84,13 @@ class CoinbaseWebhookModuleFrontController extends ModuleFrontController
         // if test mode don't run validation
         if ((bool)Configuration::get('COINBASE_SANDBOX')) {
             $data = \json_decode($payload, true);
-            return new \CoinbaseSDK\Resources\Event($data['event']);
+            return new \CoinbaseCommerce\Resources\Event($data['event']);
         }
 
         $sharedSecret = Configuration::get('COINBASE_SHARED_SECRET');
         $headers = array_change_key_case(getallheaders());
         $signatureHeader = isset($headers[SIGNATURE_HEADER]) ? $headers[SIGNATURE_HEADER] : null;
 
-        return \CoinbaseSDK\Webhook::buildEvent($payload, $signatureHeader, $sharedSecret);
+        return \CoinbaseCommerce\Webhook::buildEvent($payload, $signatureHeader, $sharedSecret);
     }
 }
