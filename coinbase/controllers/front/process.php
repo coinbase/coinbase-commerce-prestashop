@@ -6,8 +6,8 @@ if (!defined('_PS_VERSION_')) {
 
 if (defined('_PS_MODULE_DIR_')) {
     require_once _PS_MODULE_DIR_ . 'coinbase/classes/OrderManager.php';
-    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/CoinbaseSDK/init.php';
-    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/CoinbaseSDK/const.php';
+    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/autoload.php';
+    require_once _PS_MODULE_DIR_ . 'coinbase/vendor/const.php';
 }
 
 class CoinbaseProcessModuleFrontController extends ModuleFrontController
@@ -84,8 +84,8 @@ class CoinbaseProcessModuleFrontController extends ModuleFrontController
         );
 
         $apiKey = Configuration::get('COINBASE_API_KEY');
-        \CoinbaseSDK\ApiClient::init($apiKey);
+        \CoinbaseCommerce\ApiClient::init($apiKey);
 
-        return \CoinbaseSDK\Resources\Charge::create($chargeData);
+        return \CoinbaseCommerce\Resources\Charge::create($chargeData);
     }
 }
