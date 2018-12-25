@@ -1,6 +1,7 @@
 <?php
+namespace CoinbaseSDK\Exceptions;
 
-class CurlErrorException extends Exception
+class CurlErrorException extends ApiException
 {
     private $body;
 

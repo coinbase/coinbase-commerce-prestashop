@@ -1,5 +1,0 @@
-/coinbase/vendor/*
-!/coinbase/vendor/const.php
-!/coinbase/vendor/index.php
-/.idea/
-/composer.lock

@@ -77,8 +77,7 @@ class Coinbase extends PaymentModule
         if (!$this->active) {
             return;
         }
-
-        $paymentOption = new PaymentOption();
+        $paymentOption = new \PrestaShop\PrestaShop\Core\Payment\PaymentOption();
         $paymentOption->setCallToActionText($this->l('Coinbase Commerce'))
             ->setAction($this->context->link->getModuleLink($this->name, 'process', array(), true))
             ->setAdditionalInformation($this->context->smarty->fetch('module:coinbase/views/templates/front/payment_infos.tpl'))
