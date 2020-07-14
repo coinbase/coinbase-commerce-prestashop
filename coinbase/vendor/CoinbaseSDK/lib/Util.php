@@ -1,7 +1,7 @@
 <?php
 namespace CoinbaseSDK;
 
-use CoinbaseSDK\Resources\charge;
+use CoinbaseSDK\Resources\Charge;
 use CoinbaseSDK\Resources\Checkout;
 use CoinbaseSDK\Resources\Event;
 
@@ -39,7 +39,7 @@ class Util
         if (empty(self::$mapResourceByName)) {
             self::$mapResourceByName = [
                 'checkout' => Checkout::getClassName(),
-                'charge' => charge::getClassName(),
+                'charge' => Charge::getClassName(),
                 'event' => Event::getClassName()
             ];
         }
